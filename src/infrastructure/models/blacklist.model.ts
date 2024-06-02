@@ -4,9 +4,9 @@ import DatabaseConnection from "../database/DatabaseConnection";
 const db = new DatabaseConnection();
 const dbInstance = db.getInstance;
 
-class Blacklist extends Model {}
+class BlacklistModel extends Model {}
 
-Blacklist.init(
+BlacklistModel.init(
 	{
 		token: {
 			type: DataTypes.STRING(255),
@@ -20,4 +20,4 @@ Blacklist.init(
 	}
 );
 
-export default Blacklist;
+export default BlacklistModel;
