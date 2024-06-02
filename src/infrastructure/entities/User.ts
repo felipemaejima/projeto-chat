@@ -1,8 +1,8 @@
 import UserModel from "../models/user.model";
-import { IUser } from "../../app/interfaces/Interfaces";
+import { IUser } from "../../app/interfaces/protocols";
 
 export default class User {
-	public static create(data: IUser): Promise<boolean> {
+	public static create(data: Omit<IUser, "id">): Promise<boolean> {
 		const { userName, email, password, roleId = 1 } = data;
 		return new Promise((resolve, reject) => {
 			try {
@@ -15,7 +15,7 @@ export default class User {
 				resolve(true);
 			} catch (err) {
 				console.error(err);
-				reject(false);
+				reject(err);
 			}
 		});
 	}
@@ -23,7 +23,7 @@ export default class User {
 	public static getUserByEmail(email: string): Promise<IUser | boolean> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const user = <any>(await UserModel.findOne({
+				const user = <any>await UserModel.findOne({
 					where: { email, isActive: true },
 					attributes: [
 						"id",
@@ -32,19 +32,19 @@ export default class User {
 						"email",
 						"roleId",
 					],
-				}));
+				});
 				resolve(user!);
 			} catch (err) {
 				console.error(err);
-				resolve(false);
+				reject(err);
 			}
 		});
 	}
 
-	public static getUserById(id: string): Promise<object | boolean> {
+	public static getUserById(id: string): Promise<IUser | boolean> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const user = await UserModel.findOne({
+				const user = await <any>UserModel.findOne({
 					where: { id, isActive: true },
 					attributes: [
 						"id",
@@ -57,7 +57,7 @@ export default class User {
 				resolve(user!);
 			} catch (err) {
 				console.error(err);
-				resolve(false);
+				reject(err);
 			}
 		});
 	}
