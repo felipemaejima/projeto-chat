@@ -2,24 +2,12 @@ import { Request, Response } from "express";
 import Security from "../../infrastructure/security/Security";
 import User from "../../infrastructure/entities/User";
 import config from "../../../config";
-import { isValidEmail } from "../helpers/Helper";
+import { isValidEmail, checkToken } from "../helpers/Helper";
+import { IResponse } from "../interfaces/protocols";
 
-interface IErrors {
-	error: boolean;
-	message: {
-		[key: string]: string;
-	} | null;
-}
-
-const checkToken = async (token: string | null): Promise<boolean> => {
-	if (!token) return false;
-
-	const sessionToken = token?.split(" ")[1];
-	const isValidToken = await Security.verifyTokenValidity(sessionToken!);
-
-	if (!isValidToken) return false;
-
-	return true;
+let response: IResponse = {
+	error: false,
+	message: {},
 };
 
 export async function accessValidator(req: Request, res: Response, next: any) {
@@ -39,22 +27,21 @@ export async function accessValidator(req: Request, res: Response, next: any) {
 
 export async function dataValidator(req: Request, res: Response, next: any) {
 	const data: any = req.body;
-	let errors: IErrors = {
-		error: false,
-		message: null,
-	};
 
 	if (req.path === "/register" && req.method === "POST") {
 		if (!data.userName)
-			errors = {
+			response = {
 				error: true,
 				message: { userName: "username is required" },
 			};
 
 		if (!data.email)
-			errors = {
+			response = {
 				error: true,
-				message: { ...errors.message, email: "email is required" },
+				message: {
+					...(<object>response.message),
+					email: "email is required",
+				},
 			};
 
 		const emailIsUnique: boolean = !!(await User.getUserByEmail(
@@ -62,95 +49,118 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 		));
 
 		if (data.email && emailIsUnique)
-			errors = {
+			response = {
 				error: true,
-				message: { ...errors.message, email: "email must be unique" },
+				message: {
+					...(<object>response.message),
+					email: "email must be unique",
+				},
 			};
 
 		if (data.email && !isValidEmail(data.email))
-			errors = {
+			response = {
 				error: true,
-				message: { ...errors.message, email: "email is not valid" },
+				message: {
+					...(<object>response.message),
+					email: "email is not valid",
+				},
 			};
 
 		if (!data.password)
-			errors = {
+			response = {
 				error: true,
 				message: {
-					...errors.message,
+					...(<object>response.message),
 					password: "password is required",
 				},
 			};
 
 		if (data.password && data.password !== data.confirmPassword)
-			errors = {
+			response = {
 				error: true,
 				message: {
-					...errors.message,
+					...(<object>response.message),
 					password: "passwords do not match",
 				},
 			};
 
 		if (data.password && data.password.length < config.passMinLength)
-			errors = {
+			response = {
 				error: true,
 				message: {
-					...errors.message,
+					...(<object>response.message),
 					password: `password must be at least ${config.passMinLength} characters long`,
 				},
 			};
 
-		if (errors.error) {
-			return res.status(400).json(errors);
+		if (response.error) {
+			return res.status(400).json(response);
 		}
 
 		next();
 	}
 
 	if (req.path === "/login" && req.method === "POST") {
-		if (await checkToken(req.headers.authorization || null))
-			return res
-				.status(400)
-				.json({ error: true, message: "already logged" });
-
-		const data: any = req.body;
+		if (await checkToken(req.headers.authorization || null)) {
+			response = { error: true, message: "already logged" };
+			return res.status(400).json(response);
+		}
 
 		if (!data.email)
-			errors = { error: true, message: { email: "email is required" } };
+			response = { error: true, message: { email: "email is required" } };
 
 		const emailIsUnique: boolean = !!(await User.getUserByEmail(
 			data.email
 		));
 
 		if (data.email && !emailIsUnique)
-			errors = {
+			response = {
 				error: true,
-				message: { ...errors.message, email: "email not found" },
+				message: {
+					...(<object>response.message),
+					email: "email not found",
+				},
 			};
 
 		if (data.email && !isValidEmail(data.email))
-			errors = {
+			response = {
 				error: true,
-				message: { ...errors.message, email: "email is not valid" },
+				message: {
+					...(<object>response.message),
+					email: "email is not valid",
+				},
 			};
 
 		if (!data.password)
-			errors = {
+			response = {
 				error: true,
 				message: {
-					...errors.message,
+					...(<object>response.message),
 					password: "password is required",
 				},
 			};
 
-		if (errors.error) {
-			return res.status(400).json(errors);
+		if (response.error) {
+			return res.status(400).json(response);
 		}
 
 		next();
 	}
 
 	if (req.method !== "POST") {
+		if (await checkToken(req.headers.authorization || null)) {
+			response = {
+				error: true,
+				message: "already logged",
+				redirect: true,
+				url: "/dashboard",
+			};
+
+			return res.status(400).json(response);
+		}
+
 		next();
 	}
+
+	if (req.method === "POST" || req.path === "/logout") next();
 }
