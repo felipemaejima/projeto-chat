@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import DatabaseConnection from "../database/DatabaseConnection";
-import Blacklist from "../models/blacklist.model";
+import BlackList from "../entities/BlackList";
 import config from "../../../config";
 
 const db = new DatabaseConnection();
@@ -60,6 +60,7 @@ export default class Security {
 				<string>config.JWTSecret,
 				(err: Error | null, token: string | undefined) => {
 					if (err) {
+						console.error(err);
 						reject(err);
 					} else {
 						resolve(token || "");
@@ -88,11 +89,11 @@ export default class Security {
 	public static verifyTokenValidity(token: string): Promise<boolean> {
 		return new Promise(async (resolve, reject) => {
 			const inBlacklist = await Security.checkBlacklist(token);
-			if (inBlacklist) reject(false);
+			if (inBlacklist) resolve(false);
 			try {
 				const decoded = await Security.getDecodedToken(token);
 				let isValid = false;
-				if (!decoded) reject(isValid);
+				if (!decoded) resolve(isValid);
 				const time = new Date(decoded.time);
 				const expiresMin = decoded.expiresMin;
 				const currentDate = new Date();
@@ -101,6 +102,7 @@ export default class Security {
 				isValid = !!(validity < expiresMin);
 				resolve(isValid);
 			} catch (err) {
+				console.error(err);
 				reject(err);
 			}
 		});
@@ -109,9 +111,10 @@ export default class Security {
 	private static checkBlacklist(token: string): Promise<boolean> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const blacklist = await Blacklist.findOne({ where: { token } });
+				const blacklist = await BlackList.check(token);
 				resolve(!!blacklist);
 			} catch (err) {
+				console.error(err);
 				reject(err);
 			}
 		});
@@ -120,9 +123,10 @@ export default class Security {
 	public static invalidateToken(token: string): Promise<boolean> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				await Blacklist.create({ token });
+				await BlackList.add(token);
 				resolve(true);
 			} catch (err) {
+				console.error(err);
 				reject(err);
 			}
 		});
@@ -134,6 +138,7 @@ export default class Security {
 				const decoded = await Security.getDecodedToken(token);
 				resolve(decoded.userId);
 			} catch (err) {
+				console.error(err);
 				reject(err);
 			}
 		});
@@ -145,6 +150,7 @@ export default class Security {
 				const decoded = await Security.getDecodedToken(token);
 				resolve(decoded.role);
 			} catch (err) {
+				console.error(err);
 				reject(err);
 			}
 		});
