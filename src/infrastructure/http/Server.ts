@@ -3,6 +3,11 @@ import config from "../../../config";
 import { accessValidator } from "../../app/middlewares/AuthMiddleware";
 import authRouter from "../../app/routes/authRoutes";
 import userRouter from "../../app/routes/userRoutes";
+import DatabaseConnection from "../../infrastructure/database/DatabaseConnection";
+
+const db = new DatabaseConnection(); 
+
+db.connect();
 
 const app = express();
 

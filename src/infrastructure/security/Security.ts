@@ -4,10 +4,6 @@ import DatabaseConnection from "../database/DatabaseConnection";
 import BlackList from "../entities/BlackList";
 import config from "../../../config";
 
-const db = new DatabaseConnection();
-
-db.connect();
-
 type promiseError = Error | undefined | null;
 
 const saltRounds: number = 10;
@@ -70,6 +66,7 @@ export default class Security {
 		});
 	}
 
+	//problema na função
 	private static getDecodedToken(token: string): Promise<any> {
 		return new Promise((resolve, reject) => {
 			jwt.verify(

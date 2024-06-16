@@ -10,7 +10,5 @@ export async function checkToken(token: string | null): Promise<boolean> {
 	const sessionToken = token?.split(" ")[1];
 	const isValidToken = await Security.verifyTokenValidity(sessionToken);
 
-	if (!isValidToken) return false;
-
-	return true;
+	return isValidToken ? true : false;
 }
