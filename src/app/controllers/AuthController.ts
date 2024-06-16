@@ -2,19 +2,22 @@ import { Request, Response } from "express";
 import DatabaseConnection from "../../infrastructure/database/DatabaseConnection";
 import Security from "../../infrastructure/security/Security";
 import User from "../../infrastructure/entities/User";
-import { IResponse, IUser } from "../interfaces/protocols";
-import { checkToken } from "../helpers/Helper";
+import { IHttpResponse, IUser } from "../interfaces/protocols";
 
-const db = new DatabaseConnection();
-
-db.connect();
-
-let response: IResponse = {
+let response: IHttpResponse = {
 	error: false,
 	message: {},
 };
 
-export async function registerPage() {}
+export async function registerPage(req: Request, res: Response) {
+	response = {
+		error: false,
+		message: {},
+		redirect: true,
+		url: "/auth/register",
+	}
+	return res.status(200).json(response);
+}
 
 export async function register(req: Request, res: Response) {
 	const { userName, email, password, roleId = 1 } = req.body;
@@ -43,7 +46,17 @@ export async function register(req: Request, res: Response) {
 	}
 }
 
-export async function loginPage(req: Request, res: Response) {}
+export async function loginPage(req: Request, res: Response) {
+	response = {
+		error: false,
+		message: {},
+		redirect: true,
+		url: "/auth/login",
+	}
+	return res.status(200).json(response);
+}
+
+
 
 export async function login(req: Request, res: Response) {
 	const { email, password } = req.body;
@@ -52,7 +65,7 @@ export async function login(req: Request, res: Response) {
 		password: hash,
 		id,
 		roleId,
-	} = <IUser>await User.getUserByEmail(email);
+	} = <IUser>await User.findByEmail(email);
 	try {
 		const isPasswordValid = await Security.validatePassword(password, hash);
 
@@ -82,11 +95,6 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function logout(req: Request, res: Response) {
-	if (!(await checkToken(req.headers.authorization || null))) {
-		response = { error: true, message: "already disconnected" };
-
-		return res.status(400).json(response);
-	}
 
 	const token = req.headers.authorization?.split(" ")[1]!;
 	try {
