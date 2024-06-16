@@ -1,6 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import DatabaseConnection from "../database/DatabaseConnection";
-import Role from "./role.model";
+import RoleModel from "./role.model";
 
 const db = new DatabaseConnection();
 const dbInstance = db.getInstance;
@@ -15,11 +15,11 @@ UserModel.init(
 			primaryKey: true,
 		},
 		userName: {
-			type: DataTypes.STRING(50),
+			type: DataTypes.STRING(255),
 			allowNull: false,
 		},
 		email: {
-			type: DataTypes.STRING(50),
+			type: DataTypes.STRING(255),
 			allowNull: false,
 			unique: true,
 		},
@@ -39,6 +39,11 @@ UserModel.init(
 	}
 );
 
-UserModel.belongsTo(Role, { foreignKey: "roleId" });
+UserModel.belongsTo(RoleModel, { 
+	foreignKey: {
+		name: 'roleId',
+		allowNull: false
+	  }
+ });
 
 export default UserModel;

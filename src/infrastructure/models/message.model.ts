@@ -1,13 +1,13 @@
 import { DataTypes, Model } from "sequelize";
 import DatabaseConnection from "../database/DatabaseConnection";
-import User from "./user.model";
+import UserModel from "./user.model";
 
 const db = new DatabaseConnection();
 const dbInstance = db.getInstance;
 
-class Message extends Model {}
+class MessageModel extends Model {}
 
-Message.init(
+MessageModel.init(
 	{
 		id: {
 			type: DataTypes.UUID,
@@ -25,12 +25,19 @@ Message.init(
 	},
 	{
 		sequelize: dbInstance,
-		modelName: "Message",
+		modelName: "MessageModel",
 		tableName: "messages",
 	}
 );
 
-Message.belongsTo(User, { as: "sender", foreignKey: "id" });
-Message.belongsTo(User, { as: "receiver", foreignKey: "id" });
+MessageModel.belongsTo(UserModel, { as: "sender", foreignKey: {
+	name: "senderId",
+	allowNull: false,
+}});
 
-export default Message;
+MessageModel.belongsTo(UserModel, { as: "receiver", foreignKey: {
+	name: "receiverId",
+	allowNull: false,
+}});
+
+export default MessageModel;

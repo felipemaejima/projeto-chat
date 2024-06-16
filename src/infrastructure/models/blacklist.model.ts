@@ -8,9 +8,13 @@ class BlacklistModel extends Model {}
 
 BlacklistModel.init(
 	{
+		id: {
+			type: DataTypes.UUID,
+			defaultValue: DataTypes.UUIDV4,
+			primaryKey: true,
+		},
 		token: {
 			type: DataTypes.STRING(255),
-			primaryKey: true,
 		},
 	},
 	{

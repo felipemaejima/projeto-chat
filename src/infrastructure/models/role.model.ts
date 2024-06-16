@@ -4,26 +4,30 @@ import DatabaseConnection from "../database/DatabaseConnection";
 const db = new DatabaseConnection();
 const dbInstance = db.getInstance;
 
-class Role extends Model {}
+class RoleModel extends Model {}
 
-Role.init(
+RoleModel.init(
 	{
 		id: {
-			type: DataTypes.INTEGER,
-			autoIncrement: true,
+			type: DataTypes.UUID,
+			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true,
 		},
-		roleDescription: {
-			type: DataTypes.STRING(50),
+		name: {
+			type: DataTypes.STRING(255),
 			allowNull: false,
 			unique: true,
+		},
+		isActive: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true,
 		},
 	},
 	{
 		sequelize: dbInstance,
-		modelName: "Role",
+		modelName: "RoleModel",
 		tableName: "roles",
 	}
 );
 
-export default Role;
+export default RoleModel;

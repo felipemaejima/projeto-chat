@@ -1,32 +1,39 @@
 import { DataTypes, Model } from "sequelize";
 import DatabaseConnection from "../database/DatabaseConnection";
-import User from "./user.model";
+import UserModel from "./user.model";
 
 const db = new DatabaseConnection();
 const dbInstance = db.getInstance;
 
-class Friendship extends Model {}
+class FriendshipModel extends Model {}
 
-Friendship.init(
-	{
-		id: {
-			type: DataTypes.UUID,
-			defaultValue: DataTypes.UUIDV4,
-			primaryKey: true,
-		},
-		isActive: {
-			type: DataTypes.BOOLEAN,
-			defaultValue: true,
-		},
-	},
-	{
-		sequelize: dbInstance,
-		modelName: "Message",
-		tableName: "messages",
-	}
+FriendshipModel.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  },
+  {
+    sequelize: dbInstance,
+    modelName: "FriendshipModel",
+    tableName: "friendships",
+  }
 );
 
-Friendship.belongsTo(User, { as: "follower", foreignKey: "id" });
-Friendship.belongsTo(User, { as: "followed", foreignKey: "id" });
+FriendshipModel.belongsTo(UserModel, { as: "follower", foreignKey: {
+	name: "followerId",
+	allowNull: false,
+} });
 
-export default Friendship;
+FriendshipModel.belongsTo(UserModel, { as: "followed", foreignKey: {
+	name: "followedId",
+	allowNull: false,
+}});
+
+export default FriendshipModel;
