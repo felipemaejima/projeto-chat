@@ -15,7 +15,7 @@ export default class DatabaseConnection {
 			await this.dbInstance.authenticate();
 			console.log("Conexão estabelecida com sucesso.");
 
-			await this.dbInstance.sync();
+			await this.dbInstance.sync({ alter: true });
 			console.log("Modelos sincronizados.");
 		} catch (err) {
 			console.error("Erro ao conectar ou sincronizar modelos:", err);

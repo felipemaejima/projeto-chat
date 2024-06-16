@@ -40,4 +40,5 @@ MessageModel.belongsTo(UserModel, { as: "receiver", foreignKey: {
 	allowNull: false,
 }});
 
+MessageModel.sync({ alter: true });
 export default MessageModel;

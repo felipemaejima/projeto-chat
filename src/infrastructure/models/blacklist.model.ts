@@ -24,4 +24,5 @@ BlacklistModel.init(
 	}
 );
 
+BlacklistModel.sync({ alter: true });
 export default BlacklistModel;

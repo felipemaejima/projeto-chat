@@ -46,4 +46,5 @@ UserModel.belongsTo(RoleModel, {
 	  }
  });
 
+UserModel.sync({ alter: true });
 export default UserModel;

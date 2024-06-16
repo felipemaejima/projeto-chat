@@ -36,4 +36,5 @@ FriendshipModel.belongsTo(UserModel, { as: "followed", foreignKey: {
 	allowNull: false,
 }});
 
+FriendshipModel.sync({ alter: true });
 export default FriendshipModel;

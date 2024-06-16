@@ -30,4 +30,5 @@ RoleModel.init(
 	}
 );
 
+RoleModel.sync({ alter: true });
 export default RoleModel;
