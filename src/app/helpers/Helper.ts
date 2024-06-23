@@ -1,4 +1,4 @@
-import Security from "../../infrastructure/security/Security";
+import Security from "../../infra/security/Security";
 
 export function isValidEmail(email: string): boolean {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import Security from "../../infrastructure/security/Security";
-import User from "../../infrastructure/entities/User";
+import Security from "../../infra/security/Security";
+import User from "../../infra/entities/User";
 import config from "../../../config";
 import { isValidEmail, checkToken } from "../helpers/Helper";
 import { IHttpResponse } from "../interfaces/protocols";
@@ -46,9 +46,7 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 			};
 		}
 
-		const emailIsUnique: boolean = !!(await User.findByEmail(
-			data.email
-		));
+		const emailIsUnique: boolean = !!(await User.findByEmail(data.email));
 
 		if (data.email && emailIsUnique) {
 			response = {
@@ -60,7 +58,7 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 			};
 		}
 
-		if (data.email && !isValidEmail(data.email)) { 
+		if (data.email && !isValidEmail(data.email)) {
 			response = {
 				error: true,
 				message: {
@@ -70,7 +68,7 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 			};
 		}
 
-		if (!data.password) { 
+		if (!data.password) {
 			response = {
 				error: true,
 				message: {
@@ -80,7 +78,7 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 			};
 		}
 
-		if (data.password && data.password !== data.confirmPassword) { 
+		if (data.password && data.password !== data.confirmPassword) {
 			response = {
 				error: true,
 				message: {
@@ -90,7 +88,7 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 			};
 		}
 
-		if (data.password && data.password.length < config.passMinLength) { 
+		if (data.password && data.password.length < config.passMinLength) {
 			response = {
 				error: true,
 				message: {
@@ -107,15 +105,13 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 		next();
 	}
 
-	if (req.path === "/login" && req.method === "POST") {	
+	if (req.path === "/login" && req.method === "POST") {
 		if (!data.email)
 			response = { error: true, message: { email: "email is required" } };
 
-		const emailIsUnique: boolean = !!(await User.findByEmail(
-			data.email
-		));
+		const emailIsUnique: boolean = !!(await User.findByEmail(data.email));
 
-		if (data.email && !emailIsUnique) { 
+		if (data.email && !emailIsUnique) {
 			response = {
 				error: true,
 				message: {
@@ -125,7 +121,7 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 			};
 		}
 
-		if (data.email && !isValidEmail(data.email)) { 
+		if (data.email && !isValidEmail(data.email)) {
 			response = {
 				error: true,
 				message: {
@@ -135,7 +131,7 @@ export async function dataValidator(req: Request, res: Response, next: any) {
 			};
 		}
 
-		if (!data.password) { 
+		if (!data.password) {
 			response = {
 				error: true,
 				message: {
